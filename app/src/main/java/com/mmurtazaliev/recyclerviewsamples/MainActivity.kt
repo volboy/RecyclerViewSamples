@@ -8,29 +8,31 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.mmurtazaliev.recyclerviewsamples.utils.OnSnapPositionChangeListener
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnSnapPositionChangeListener {
     private lateinit var currentPosition: TextView
-
-    private object onSnapPositionChangeListener : OnSnapPositionChangeListener {
-        override fun onSnapPositionChange(position: Int) {
-
-        }
-
-    }
+    private lateinit var mainAdapter: MainAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val mainRv = findViewById<RecyclerView>(R.id.mainRv)
         currentPosition = findViewById(R.id.currentPosition)
-        val mainAdapter = MainAdapter()
+        mainAdapter = MainAdapter()
         val layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-        val snapHelper = LinearSnapHelper().also { it.attachToRecyclerView(mainRv) }
-        val snapOnScrollListener = SnapOnScrollListener(snapHelper, this)
+        mainRv.attachSnapHelperWithListener(LinearSnapHelper(), SnapOnScrollListener.Behavior.NOTIFY_ON_SCROLL_STATE_IDLE, this)
         mainRv.layoutManager = layoutManager
         mainRv.adapter = mainAdapter
         mainAdapter.setItem(DaysRepository.days)
 
+    }
+
+    override fun onSnapPositionChange(position: Int) {
+        val day = mainAdapter.getItem(position).number
+        if (day!=0){
+            currentPosition.text = day.toString()
+        } else {
+            currentPosition.text = ""
+        }
     }
 
 }
